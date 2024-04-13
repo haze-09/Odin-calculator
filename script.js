@@ -2,9 +2,8 @@ let display = document.querySelector('#calcDisplay');
 let currentValue = '';
 let buttons = document.querySelectorAll('button');
 
-let operatorCount = 0;
 
-//division
+
 
 function division(expression){
     var [dividend, divisor] = expression.split('/');
@@ -15,7 +14,6 @@ function division(expression){
 
 function multiply(expression){
     var [multiplicand, multiplier]= expression.split('*');
-    operatorCount +=1
     return parseFloat(multiplicand) * parseFloat(multiplier);
     
 }
@@ -23,7 +21,6 @@ function multiply(expression){
 
 function add(expression){
     var [a, b]= expression.split('+');
-    operatorCount +=1
     return parseFloat(a) + parseFloat(b);
     
 }
@@ -31,7 +28,6 @@ function add(expression){
 
 function subtract(expression){
     var [a, b]= expression.split('-');
-    operatorCount +=1
     return parseFloat(a) - parseFloat(b);
     
 }
@@ -41,11 +37,15 @@ function evaluate(expression){
     let regex = /(\/|\*|\+|\-)/;
     var match = expression.match(regex);
 
+    console.log("Expression:", expression); // Log the expression
+    console.log("Match:", match); // Log the match result
+
+
     if (!match) {
         return expression;
     }
 
-    var result
+    var result;
 
     switch(match[0]){
         case '/':
@@ -62,12 +62,49 @@ function evaluate(expression){
             break;
     }    
     
-    return result;    
+    return result.toString();    
 }
 
+document.addEventListener('keydown',(event) => {
+    var key = event.key;
+
+    const keyMappings = {
+        'Enter':'=',
+        'Backspace':'DEL',
+        'Escape':'AC',
+    };
+
+    var buttonValue = keyMappings[key] || key;
+    console.log(buttonValue);
+
+    const buttons = document.querySelectorAll('button');
+
+    
+
+
+    buttons.forEach((button) => {
+
+        if (button.value === buttonValue) {            
+            button.click();
+        }
+    });
+});
+
+
+function isSecondLastNumber(str) {
+    return /\d/.test(str.charAt(str.length - 2));
+}
+
+
+
+   
 for(let button of buttons){
+    
+   
     button.addEventListener('click',()=>{
         var buttonValue = button.textContent;
+        
+        
         
         switch(buttonValue) {
             case "AC":
@@ -79,34 +116,59 @@ for(let button of buttons){
                 display.value = currentValue;
                 break;
             case "=":
-                operatorCount = 0;
-                currentValue = evaluate(currentValue);
-                display.value = currentValue;
-                break;
             case "+":
             case "-":
             case "/":
             case "*":
-                operatorCount += 1;
                 currentValue += buttonValue;
                 display.value = currentValue;
-                if(operatorCount === 2){
-                    evalValue = currentValue.slice(0, -1);
-                    currentValue = evaluate(evalValue) + currentValue[currentValue.length-1];
-                    display.value = currentValue;
-                    operatorCount = 1;            
+
+                if(currentValue.charAt(currentValue.length - 1) === '='){
+                    if(isSecondLastNumber(currentValue)){
+                        currentValue = currentValue.slice(0, -1);
+                        currentValue = evaluate(currentValue);
+                        display.value = currentValue;
+                    }
+                    else{
+                        let regex = /(\d+(\.\d+)?)[+\-*\/]?\.?=/;
+                        let match = currentValue.match(regex);
+                        currentValue = match[1];
+                        display.value = currentValue;
+                    }
                 }
+                else{
+                    if(isSecondLastNumber(currentValue)){
+                        let operator = currentValue.charAt(currentValue.length - 1);
+                        currentValue = evaluate(currentValue.slice(0, -1)) + operator;
+                        display.value = currentValue;
+                    }
+                    else{
+                        let operator = currentValue.charAt(currentValue.length - 1);
+                        currentValue = currentValue.slice(0, -2) + operator;
+                        display.value = currentValue;
+                    }
+                }                
                 break;
                 
             default:
                 
                 currentValue += buttonValue;
                 display.value = currentValue;
+                if(/\d+\.(\d+)?\./.test(currentValue)){
+                    currentValue = currentValue.slice(0, -1);
+                    display.value = currentValue;                 
+                }              
+                
                 break;
         }        
 
     })
 }
+
+
+
+
+
 
 
 
