@@ -67,9 +67,13 @@ button{
     font-size: 30px;
     
 
-    /* box-shadow: 5px 5px 10px rgba(190,227,219,1); */
     
     
+    
+}
+
+button:hover{
+    box-shadow: 5px 5px 10px rgba(190,227,219,1);
 }
 
 #numeric{
